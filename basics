@@ -1,0 +1,69 @@
+### Основные действия
+### Обычный execute 
+DO $$
+BEGIN
+    -- Выполнение SQL-запроса
+    EXECUTE 'INSERT INTO public.list_brand("name", "year") VALUES (''Volkswagen'', 1937);';
+END $$;
+
+### Создание переменной типа rowtype
+DO $$
+DECLARE
+    -- Объявление переменной типа строки
+    my_row public.list_brand%ROWTYPE;
+BEGIN
+    -- Выполнение SQL-запроса
+    EXECUTE 'select * from public.list_brand where id = 2;'
+    INTO strict my_row;
+    -- Вывод значений переменной
+    RAISE NOTICE 'Строка: %', my_row;
+END $$;
+
+### Подстановка значения в переменную через using
+DO $$
+DECLARE
+    -- Объявление переменной типа строки
+    my_row public.list_brand%ROWTYPE;
+BEGIN
+    -- Выполнение SQL-запроса
+    EXECUTE 'select * from public.list_brand where id = 2;'
+    INTO strict my_row;
+    -- Вывод значений переменной
+    RAISE NOTICE 'Строка: %', my_row;
+END $$;
+
+### IF THEN ELSE
+DO $$
+DECLARE
+	a INTEGER := 15;
+	b INTEGER := 15;
+BEGIN
+	IF a < b THEN
+		RAISE NOTICE 'Результат: a < b';
+	ELSIF a = b THEN
+		RAISE NOTICE 'Результат: a = b';
+	ELSE
+		RAISE NOTICE 'Результат: a > b';
+	END IF;
+END $$;
+
+DO $$
+DECLARE
+    -- Объявление переменных
+    a int := 0;
+    b int := 10;
+    c int;
+BEGIN
+    -- Деление на ноль
+    c := b / a;
+EXCEPTION
+    WHEN division_by_zero THEN
+        RAISE NOTICE 'Делить на ноль нельзя!';
+END;
+$$;
+
+### Составные типы данных
+SELECT (subquery.my_row).f1
+FROM (
+    SELECT ROW('Екатеринбург'::text, 56.838011, 60.597474) AS my_row
+) AS subquery;
