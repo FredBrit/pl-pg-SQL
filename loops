@@ -1,0 +1,99 @@
+### Циклы
+### В переменную типа record возвращаем только строки из таблицы удовлетворяющие опредленному условию
+DO $$
+DECLARE
+    v_rec record;
+BEGIN
+    FOR v_rec IN (SELECT * FROM public.cars)
+    LOOP
+        RAISE NOTICE '%', v_rec; 	
+    END LOOP;
+END;
+$$;
+
+### Перебор массива с помощью FOREACH
+DO $$
+DECLARE
+    my_array INT[][] := ARRAY[[1, 2, 3], [4, 5, 6], [7, 8, 9], [10, 11, 12]];
+    my_slice INT;
+BEGIN
+    -- Выводим значение массива
+    RAISE NOTICE 'Массив: %', my_array;
+    -- Итерация по массиву в цикле
+    FOREACH my_slice SLICE 0 IN ARRAY my_array 
+	LOOP
+        RAISE NOTICE 'Значение slice: %', my_slice;
+    END LOOP;
+END $$;
+
+DO $$
+DECLARE
+    my_array INT[][] := ARRAY[[1, 2, 3], [4, 5, 6], [7, 8, 9], [10, 11, 12]];
+    my_slice INT[];
+BEGIN
+    -- Выводим значение массива
+    RAISE NOTICE 'Массив: %', my_array;
+    -- Итерация по массиву в цикле
+    FOREACH my_slice SLICE 1 IN ARRAY my_array 
+	LOOP
+        RAISE NOTICE 'Значение slice: %', my_slice;
+    END LOOP;
+END $$;
+
+DO $$
+DECLARE
+    my_array INT[][] := ARRAY[[1, 2, 3], [4, 5, 6], [7, 8, 9], [10, 11, 12]];
+    my_slice INT[];
+BEGIN
+    -- Выводим значение массива
+    RAISE NOTICE 'Массив: %', my_array;
+    -- Итерация по массиву в цикле
+    FOREACH my_slice SLICE 2 IN ARRAY my_array 
+	LOOP
+        RAISE NOTICE 'Значение slice: %', my_slice;
+    END LOOP;
+END $$;
+
+### Вложенные циклы и метка
+DO $$
+DECLARE
+    i INT4;
+    j INT4;
+BEGIN
+    -- Вывод стартового сообщения
+    RAISE NOTICE 'Начало обработки';
+    -- Внешний цикл FOR
+    <<outer_loop>>
+    FOR i IN 1..5 LOOP
+        -- Внутренний цикл FOR
+        <<inner_loop>>
+        FOR j IN 1..5 LOOP
+            -- Пропускаем итерацию, если i и j одинаковы
+            IF i = j THEN
+                -- Выводим сообщение и переходим к следующей итерации внешнего цикла
+                RAISE NOTICE 'Пропускаем i = %, j = %', i, j;
+                CONTINUE outer_loop;
+            END IF;
+            -- Вывод значения переменных
+            RAISE NOTICE 'Обработка: i = %, j = %', i, j;
+        END LOOP inner_loop;
+    END LOOP outer_loop;
+    -- Вывод финального сообщения
+    RAISE NOTICE 'Обработка завершена';
+END;
+$$
+
+# Вызов переменной из другого блока
+DO $$
+<<outer_block>>
+DECLARE
+    v_text TEXT := 'Привет';
+BEGIN
+    -- Вложенный анонимный блок
+    <<inner_block>>
+    DECLARE
+        v_text TEXT := 'Мир';
+    BEGIN
+        RAISE NOTICE '% %!', outer_block.v_text, inner_block.v_text;
+    END inner_block;
+END outer_block $$;
