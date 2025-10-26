@@ -151,3 +151,25 @@ BEGIN
     -- Закрытие курсора
     CLOSE users_cursor;
 END $$;
+
+
+### Получение нескольких строк в контексте обычного SQL
+-- Начало транзакции
+BEGIN;
+
+-- Объявление курсора
+DECLARE users_cursor NO SCROLL
+CURSOR FOR SELECT * FROM public.list_users;
+
+    -- Перемещение курсора на 2 строку
+    MOVE ABSOLUTE 2 FROM users_cursor;
+
+    -- Получение 3 и 4 строки из курсора
+    FETCH FORWARD 2 FROM users_cursor;
+
+-- Закрытие курсора
+CLOSE users_cursor;
+
+-- Завершаем транзакцию и фиксируем изменения
+COMMIT;
+
