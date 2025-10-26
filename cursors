@@ -115,3 +115,39 @@ BEGIN
     -- Закрытие курсора
     CLOSE users_cursor;
 END $$;
+
+### Можно несколько раз перемещаться с помощью MOVE, потому что указано SCROLL
+DO $$
+DECLARE
+    -- Объявление курсора
+    users_cursor SCROLL CURSOR
+    FOR SELECT * FROM public.list_users ORDER BY id ASC;
+    -- Объявление переменной типа строки
+    users_row public.list_users%ROWTYPE;
+BEGIN
+    -- Открытие курсорной переменной
+    OPEN users_cursor;
+
+        -- Перемещение курсора на 7 строку
+        MOVE ABSOLUTE 7 FROM users_cursor;
+
+        -- Получение 8 строки из курсора (последней строки)
+        FETCH NEXT FROM users_cursor
+        INTO users_row;
+
+        -- Вывод значения переменной
+        RAISE NOTICE '%', users_row;
+       
+        -- Перемещение курсора перед 1 строкой
+        MOVE ABSOLUTE 0 FROM users_cursor;
+
+        -- Получение 1 строки из курсора
+        FETCH NEXT FROM users_cursor
+        INTO users_row;
+
+        -- Вывод значения переменной
+        RAISE NOTICE '%', users_row;
+
+    -- Закрытие курсора
+    CLOSE users_cursor;
+END $$;
