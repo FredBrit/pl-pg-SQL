@@ -43,3 +43,25 @@ BEGIN
     ...
 END $$;
 
+### Запись конкретной строки из запроса в переменную ROWTYPR через FETCH
+DO $$
+DECLARE
+    -- Объявление курсорной переменной (не связана с курсором)
+    users_cursor refcursor;
+    -- Объявление переменной типа строки
+    users_row public.list_users%ROWTYPE;
+BEGIN
+    -- Открытие курсорной переменной
+    OPEN users_cursor NO SCROLL
+    FOR SELECT * FROM public.list_users;
+
+        -- Получение данных из курсора
+        FETCH ABSOLUTE 2 FROM users_cursor
+        INTO users_row;
+
+        -- Вывод значения переменной
+        RAISE NOTICE '%', users_row;
+
+    -- Закрытие курсора
+    CLOSE users_cursor;
+END $$;
