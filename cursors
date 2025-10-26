@@ -173,3 +173,26 @@ CLOSE users_cursor;
 -- Завершаем транзакцию и фиксируем изменения
 COMMIT;
 
+### Пример обновления данных с помощью WHERE CURRENT OF. DELETE работает аналогично
+DO $$
+DECLARE
+    -- Объявление курсора
+    users_cursor NO SCROLL
+    CURSOR (p_id_group int2, p_status boolean)
+    FOR SELECT * from public.list_users WHERE id_group = p_id_group AND status = p_status FOR UPDATE;
+BEGIN
+    -- Открытие курсорной переменной
+    OPEN users_cursor (p_id_group := 1, p_status := True);
+   
+        -- Перемещение курсора на 2 строку
+        MOVE ABSOLUTE 2 FROM users_cursor;
+
+        -- Обновление текущей строки
+        UPDATE public.list_users
+        SET status = FALSE
+        WHERE CURRENT OF users_cursor;
+
+    -- Закрытие курсора
+    CLOSE users_cursor;
+END $$;
+
