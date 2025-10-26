@@ -43,7 +43,7 @@ BEGIN
     ...
 END $$;
 
-### Запись конкретной строки из запроса в переменную ROWTYPR через FETCH
+### Запись конкретной строки из запроса в переменную ROWTYPE через FETCH
 DO $$
 DECLARE
     -- Объявление курсорной переменной (не связана с курсором)
@@ -57,6 +57,30 @@ BEGIN
 
         -- Получение данных из курсора
         FETCH ABSOLUTE 2 FROM users_cursor
+        INTO users_row;
+
+        -- Вывод значения переменной
+        RAISE NOTICE '%', users_row;
+
+    -- Закрытие курсора
+    CLOSE users_cursor;
+END $$;
+
+### Запись конкретной строки из запроса в переменную ROWTYPE через FETCH и именованные аргументы
+DO $$
+DECLARE
+    -- Объявление курсора
+    users_cursor NO SCROLL
+    CURSOR (p_id_group int2, p_status boolean)
+    FOR SELECT * from public.list_users WHERE id_group = p_id_group AND status = p_status;
+    -- Объявление переменной типа строки
+    users_row public.list_users%ROWTYPE;
+BEGIN
+    -- Открытие курсорной переменной
+    OPEN users_cursor (p_id_group := 1, p_status := True);
+
+        -- Получение данных из курсора
+        FETCH NEXT FROM users_cursor
         INTO users_row;
 
         -- Вывод значения переменной
