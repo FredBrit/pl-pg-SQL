@@ -1,0 +1,45 @@
+### OPEN FOR
+DO $$
+DECLARE
+    -- Объявление курсорной переменной (не связана с курсором)
+    users_cursor refcursor;
+BEGIN
+    -- Открытие курсорной переменной
+    OPEN users_cursor NO SCROLL
+    FOR SELECT * FROM public.list_users;
+   
+    -- Произвольный код
+    ...
+END $$;
+
+### OPEN FOR EXECUTE
+DO $$
+DECLARE
+    -- Объявление курсорной переменной (не связана с курсором)
+    users_cursor refcursor;
+BEGIN
+    -- Открытие курсорной переменной
+    OPEN users_cursor NO SCROLL
+    FOR EXECUTE 'SELECT * FROM public.list_users WHERE id_group = $1 AND status = $2;'
+    USING 1, True;
+   
+    -- Произвольный код
+    ...
+END $$;
+
+### С параметрами без прокрутки
+DO $$
+DECLARE
+    -- Объявление курсора
+    users_cursor NO SCROLL
+    CURSOR (p_id_group int2, p_status boolean)
+    FOR SELECT * from public.list_users WHERE id_group = p_id_group AND status = p_status;
+
+BEGIN
+    -- Открытие курсорной переменной
+    OPEN users_cursor (p_id_group := 1, p_status := True);
+
+    -- Произвольный код
+    ...
+END $$;
+
