@@ -196,3 +196,29 @@ BEGIN
     CLOSE users_cursor;
 END $$;
 
+### Использование FOUND для проверки наличия строк в переменной
+DO $$
+DECLARE
+    -- Объявление курсора
+    users_cursor NO SCROLL CURSOR
+    FOR SELECT * FROM public.list_users WHERE id_group = 2;
+    -- Объявление переменной типа строки
+    users_row public.list_users%ROWTYPE;
+BEGIN
+    -- Открываем курсор
+    OPEN users_cursor;
+
+        -- Извлекаем первую строку из курсора
+        FETCH FIRST FROM users_cursor INTO users_row;
+
+        -- Проверка результатов
+        IF FOUND THEN
+            RAISE NOTICE '%', users_row;
+        ELSE
+            RAISE NOTICE 'Курсор вернул 0 строк.';
+        END IF;
+
+    -- Закрываем курсор
+    CLOSE users_cursor;
+END $$;
+
