@@ -1,0 +1,30 @@
+### Синтаксис создания последовательности
+CREATE SEQUENCE IF NOT EXISTS public.my_seq
+AS bigint
+INCREMENT BY 1
+MINVALUE 1
+MAXVALUE 200
+START WITH 30
+CACHE 1
+NO CYCLE
+OWNED BY public.list_city.id;
+
+### Генерация столбца id при каждой вставке согласно шагу и настройкам в последовательности выше
+INSERT INTO public.list_city(id, "name", post_code)
+VALUES (nextval('public.my_seq'), 'Екатеринбург', 620000),
+       (nextval('public.my_seq'), 'Челябинск', 454000),
+       (nextval('public.my_seq'), 'Санкт-Петербург', 190000),
+       (nextval('public.my_seq'), 'Москва', 101000),
+       (nextval('public.my_seq'), 'Хабаровск', 680000),
+       (nextval('public.my_seq'), 'Самара', 443000),
+       (nextval('public.my_seq'), 'Омск', 644000),
+       (nextval('public.my_seq'), 'Краснодар', 350000),
+       (nextval('public.my_seq'), 'Нижний Новгород', 603000);
+
+### При указании is_called true следующий вызов nextval даст 41
+SELECT setval('public.my_seq', 40, true);
+SELECT nextval('public.my_seq');
+
+### При указании is_called false следующий вызов nextval даст 40
+SELECT setval('public.my_seq', 40, false);
+SELECT nextval('public.my_seq');
