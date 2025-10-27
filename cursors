@@ -222,3 +222,18 @@ BEGIN
     CLOSE users_cursor;
 END $$;
 
+
+### Цикл внутри курсора, открытие и закрытие происходит автоматически
+DO $$
+DECLARE
+    -- Объявление курсора
+    users_cursor NO SCROLL CURSOR
+    FOR SELECT * FROM public.list_users;
+BEGIN
+	-- Чтение курсора в цикле
+	FOR users_row IN users_cursor
+	LOOP
+		-- Вывод значения переменной
+		RAISE NOTICE '%', users_row;
+	END LOOP;
+END $$;
