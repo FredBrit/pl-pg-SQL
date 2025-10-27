@@ -237,3 +237,19 @@ BEGIN
 		RAISE NOTICE '%', users_row;
 	END LOOP;
 END $$;
+
+### С параметрами и обращению к элементам record
+DO $$
+DECLARE
+    -- Объявление курсора
+    users_cursor NO SCROLL
+    CURSOR (p_id_group int2, p_status boolean)
+    FOR SELECT * FROM public.list_users WHERE id_group = p_id_group AND status = p_status;
+BEGIN
+	-- Чтение курсора в цикле
+	FOR users_row IN users_cursor (p_id_group := 2, p_status := true)
+	LOOP
+		-- Вывод значений переменной
+		RAISE NOTICE 'id: %, Имя: %, Фамилия: %', users_row.id, users_row.first_name, users_row.last_name;
+	END LOOP;
+END $$;
