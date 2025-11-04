@@ -1,0 +1,65 @@
+### Синтаксис создания процедуры с использование execute
+create or replace procedure public.first_employees_procedure (
+	in p_first_name varchar(60),
+	in p_last_name varchar(60),
+	in p_middle_name varchar(60),
+	in p_birthday date,
+	in p_id_department int2 default 0
+
+)
+language plpgsql
+external security invoker
+as $$
+declare
+	v_date_modify timestamp = now();
+begin
+	execute 'insert into public.employees (first_name, last_name, middle_name, birthday, id_department, date_modify) 
+values ($1, $2, $3, $4, $5, $6);'
+	using p_first_name, p_last_name, p_middle_name, p_birthday, p_id_department, v_date_modify;
+	RAISE NOTICE 'Добавлено в таблицу: (%, %, %, %, %, %)', p_first_name, p_last_name, p_middle_name, p_birthday, p_id_department, v_date_modify;
+end;
+$$;
+
+### Вызов процедуры. Можно использовать позиционные, именованные, смешанные аргументы
+CALL public.first_employees_procedure('Тест','Тестович','Тестов','1999-01-01','1');
+
+
+### Пример работы режима параметра IN и досрочного завершения процедуры через RETURN. Переменная c не попадает в вывод после RETURN
+CREATE OR REPLACE PROCEDURE public.sum_number (
+    IN a INT2,
+    IN b INT2,
+    IN c INT2 DEFAULT 0
+)
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    -- Сложение значений
+    c := a + b;
+    -- Проверка суммы значений
+    IF c <= 15 THEN
+        RETURN;
+    END IF;
+    -- Вывод суммы значений
+    RAISE NOTICE 'Сумма: % + % = %', a, b, c;
+END;
+$$;
+
+### Пример работы режима параметра INOUT и досрочного завершения процедуры через RETURN. Переменная c попадает в вывод после RETURN
+CREATE OR REPLACE PROCEDURE public.sum_number (
+    IN a INT2,
+    IN b INT2,
+    INOUT c INT2 DEFAULT 0
+)
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    -- Сложение значений
+    c := a + b;
+    -- Проверка суммы значений
+    IF c <= 15 THEN
+        RETURN;
+    END IF;
+    -- Вывод суммы значений
+    RAISE NOTICE 'Сумма: % + % = %', a, b, c;
+END;
+$$;
