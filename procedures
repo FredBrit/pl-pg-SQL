@@ -81,3 +81,6 @@ BEGIN
     END IF;
 END;
 $$;
+
+### Для удаления перегруженной процедуры понадобиться указать сигнатуру
+DROP PROCEDURE public.ins_t_employees(varchar, varchar, varchar, date, int2);
