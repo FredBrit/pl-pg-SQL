@@ -63,3 +63,21 @@ BEGIN
     RAISE NOTICE 'Сумма: % + % = %', a, b, c;
 END;
 $$;
+
+### Создание процедуры с полиморфными типами данных Можно вызывать с любыми типами, но разные типы данных нужно приводить к одному
+CREATE OR REPLACE PROCEDURE public.comparing_numbers(
+    IN a anyelement,
+    IN b anyelement
+)
+LANGUAGE plpgsql
+EXTERNAL SECURITY INVOKER
+AS $$
+BEGIN
+    -- Сравнение чисел
+    IF a > b THEN
+        RAISE NOTICE '% > %', a, b;
+    ELSE
+        RAISE NOTICE '% < %', a, b;
+    END IF;
+END;
+$$;
