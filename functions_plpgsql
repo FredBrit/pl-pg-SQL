@@ -14,3 +14,44 @@ BEGIN
     RETURN v_car_count;
 END;
 $$;
+
+### RETURNS+RETURN для явного указания типа
+CREATE OR REPLACE FUNCTION public.f_plpgsql_count_cars_by_year(
+    IN p_year int4
+)
+RETURNS int4
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    v_car_count int4;
+BEGIN
+    -- Получаем количество записей в таблице
+    SELECT count(*)::int4
+    INTO v_car_count
+    FROM public.cars
+    WHERE "year" = p_year;
+    -- Возвращаем значение переменной
+    RETURN v_car_count;
+END;
+$$;
+
+### Выводим в RECORD
+CREATE OR REPLACE FUNCTION public.f_plpgsql_get_cars_by_id(
+    IN p_id int4,
+    OUT v_id int4,
+    OUT v_brand TEXT,
+    OUT v_model TEXT,
+    OUT v_year int4,
+    OUT v_color varchar,
+    OUT v_price float4
+) 
+LANGUAGE plpgsql 
+AS $$
+BEGIN
+    -- Получаем запись по идентификатору
+    SELECT id, brand, model, "year", color, price
+    INTO v_id, v_brand, v_model, v_year, v_color, v_price
+    FROM public.cars
+    WHERE id = p_id;
+END;
+$$;
