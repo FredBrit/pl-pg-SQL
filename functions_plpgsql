@@ -55,3 +55,72 @@ BEGIN
     WHERE id = p_id;
 END;
 $$;
+
+
+### RETURN QUERY+ RETURNS SETOF позволяет возвращать таблицу с исходной структурой
+CREATE OR REPLACE FUNCTION public.f_plpgsql_get_cars_by_year_and_brand(
+    IN p_year int4,
+    IN p_brand text
+) 
+RETURNS SETOF public.cars
+LANGUAGE plpgsql 
+AS $$
+BEGIN
+    -- Получаем и возвращаем результат запроса
+    RETURN QUERY
+    SELECT *
+    FROM public.cars
+    WHERE "year" = p_year AND brand = p_brand;
+END;
+$$;
+
+
+### Прогоняем все строки как record через цикл и возвращаем все, что удовлетворяет условию
+CREATE OR REPLACE FUNCTION public.f_plpgsql_get_cars_by_brand(
+    IN p_brand TEXT,
+    OUT v_id int4,
+    OUT v_brand TEXT,
+    OUT v_model TEXT,
+    OUT v_year int4,
+    OUT v_color varchar,
+    OUT v_price float4
+) 
+RETURNS SETOF record
+LANGUAGE plpgsql 
+AS $$
+DECLARE
+    v_rec record;
+BEGIN
+    -- Получаем записи в цикле FOR и добавляем в результирующий набор
+    FOR v_rec IN (SELECT * FROM public.cars WHERE brand = p_brand)
+    LOOP
+        v_id = v_rec.id;
+        v_brand = v_rec.brand;
+        v_model = v_rec.model;
+        v_year = v_rec.year;
+        v_color = v_rec.color;
+        v_price = v_rec.price;
+        RETURN NEXT;
+    END LOOP;
+END;
+$$;
+
+### Обрабатываем record, а возвращаем в виде таблицы исходной структуры
+CREATE OR REPLACE FUNCTION public.f_plpgsql_get_cars_by_color(
+    IN p_color TEXT
+) 
+RETURNS SETOF public.cars
+LANGUAGE plpgsql 
+AS $$
+DECLARE
+    v_rec record;
+BEGIN
+    -- Получаем записи в цикле FOR и добавляем в результирующий набор
+    FOR v_rec IN (SELECT * FROM public.cars WHERE color = p_color)
+    LOOP
+        RETURN NEXT v_rec;
+    END LOOP;
+END;
+$$;
+
+
