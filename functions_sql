@@ -1,0 +1,12 @@
+### RETURNS SETOF TABLE позволяет возвращать данные в виде таблицы
+CREATE OR REPLACE FUNCTION public.f_sql_get_cars_above_price(
+    IN p_min_price float4
+)
+RETURNS SETOF public.cars
+AS $$
+    SELECT *
+    FROM public.cars
+    WHERE price >= p_min_price
+    ORDER BY price DESC;
+$$
+LANGUAGE SQL;
