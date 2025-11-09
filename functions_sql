@@ -1,4 +1,4 @@
-### RETURNS SETOF TABLE позволяет возвращать данные в виде таблицы
+### RETURNS SETOF [TABLE] позволяет возвращать данные в виде таблицы
 CREATE OR REPLACE FUNCTION public.f_sql_get_cars_above_price(
     IN p_min_price float4
 )
@@ -10,3 +10,30 @@ AS $$
     ORDER BY price DESC;
 $$
 LANGUAGE SQL;
+
+### RETURNS SETOF [TYPE] позволяет возвращать набор данных конкретного типа
+CREATE OR REPLACE FUNCTION public.f_sql_get_id_cars_by_color(
+    IN p_color text
+)
+RETURNS SETOF int4
+AS $$
+    SELECT id::int4
+    FROM public.cars
+    WHERE color = p_color;
+$$
+LANGUAGE SQL;
+
+### RETURNS SETOF record для возвращения данных в виде record
+CREATE OR REPLACE FUNCTION public.f_sql_get_cars_by_year_and_brand(
+    IN p_year int4,
+    IN p_brand text
+)
+RETURNS SETOF record
+AS $$
+    SELECT *
+    FROM public.cars
+    WHERE "year" = p_year AND brand = p_brand;
+$$
+LANGUAGE SQL;
+
+
