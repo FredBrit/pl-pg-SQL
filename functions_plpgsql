@@ -1,0 +1,16 @@
+### Вычисляем значение, записываем в переменную и возвращаем
+CREATE OR REPLACE FUNCTION public.f_plpgsql_count_cars()
+RETURNS int4
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    v_car_count int4;
+BEGIN
+    -- Получаем количество записей в таблице
+    SELECT count(*)::int4
+    INTO v_car_count
+    FROM public.cars;
+    -- Возвращаем значение переменной
+    RETURN v_car_count;
+END;
+$$;
