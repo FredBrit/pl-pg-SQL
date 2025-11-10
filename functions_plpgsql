@@ -124,3 +124,32 @@ END;
 $$;
 
 
+### Вызов с условием
+CREATE OR REPLACE FUNCTION public.get_cars_by_year(
+    IN p_year int4
+)
+RETURNS SETOF public.cars
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    v_cars_count int;
+BEGIN
+    -- Поулчаем количество записей
+    SELECT count(*)
+    INTO v_cars_count
+    FROM public.cars
+    WHERE "year" = p_year;
+    -- Выполняем действие в зависимости от полученного результата
+    IF v_cars_count = 0 THEN
+        RAISE NOTICE 'Не найдено автомобилей за % год', p_year;
+        RETURN;
+    ELSE
+        RETURN QUERY
+        SELECT *
+        FROM public.cars
+        WHERE "year" = p_year;    
+    END IF;
+END;
+$$;
+
+
