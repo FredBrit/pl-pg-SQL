@@ -114,3 +114,27 @@ EXCEPTION
 END;
 $$ LANGUAGE plpgsql;
 
+DO $$
+BEGIN
+	-- Добавляем данные в таблицу
+	INSERT INTO public.list_city("name", zip_code)
+	VALUES ('Самара', null);
+EXCEPTION
+	-- Создаём обработчик исключений для ошибки 23502
+	WHEN SQLSTATE '23502' THEN
+		RAISE NOTICE 'Ошибка %: Значение столбца "zip_code" не может быть NULL.', SQLSTATE;
+END;
+$$ LANGUAGE plpgsql;
+
+DO $$
+BEGIN
+	-- Добавляем данные в таблицу
+	INSERT INTO public.list_city("name", zip_code)
+	VALUES ('Самара', null);
+EXCEPTION
+	-- Создаём обработчик исключений для ошибки 23502
+	WHEN not_null_violation THEN
+		RAISE NOTICE 'Ошибка: %.', SQLERRM;
+END;
+$$ LANGUAGE plpgsql;
+
