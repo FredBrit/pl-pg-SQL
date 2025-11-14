@@ -1,0 +1,28 @@
+DO $$
+DECLARE
+	-- Переменные для сохранения полученных значений из таблицы
+	s_name public.list_city."name"%TYPE;
+	s_zip_code public.list_city.zip_code%TYPE;
+	-- Новые значения для добавления в таблицу
+	v_name TEXT := 'Екатеринбург';
+	v_zip_code int4 := 620000;
+BEGIN
+	-- Проверяем существование данных
+	SELECT "name", zip_code
+	INTO s_name, s_zip_code
+	FROM public.list_city
+	WHERE "name" = v_name AND zip_code = v_zip_code;
+	-- Если полученные значения равны новым значениям, вызывается исключение 23505 (unique_violation).
+	-- Если условие не выполняется, запись добавляется в таблицу 
+	IF s_name = v_name AND s_zip_code = v_zip_code THEN
+		RAISE EXCEPTION unique_violation;
+	ELSE
+		INSERT INTO public.list_city ("name", zip_code) VALUES (v_name, v_zip_code);
+		RAISE NOTICE 'Запись (%, %) добавлена в таблицу', v_name, v_zip_code;
+	END IF;
+EXCEPTION
+	-- Обработчик ошибки 23505 (unique_violation)
+	WHEN unique_violation THEN
+		RAISE NOTICE '[ERROR]: Значение "%" уже существует в таблице!', v_name;
+END;
+$$ LANGUAGE plpgsql;
