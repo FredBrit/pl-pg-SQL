@@ -138,3 +138,55 @@ EXCEPTION
 END;
 $$ LANGUAGE plpgsql;
 
+
+### Продвинутая диагностика с помощью GET STACKED DIAGNOSTICKS
+-- Внейшний блок
+DO $$
+-- Внутренний блок
+DECLARE
+	-- Новые значения для добавления в таблицу
+	v_name TEXT := 'Екатеринбург';
+	v_zip_code INT := 620000;
+	-- Переменные для сохранения результатов диагностики
+	v_RETURNED_SQLSTATE text;
+	v_COLUMN_NAME text;
+	v_CONSTRAINT_NAME text;
+	v_PG_DATATYPE_NAME text;
+	v_MESSAGE_TEXT text;
+	v_TABLE_NAME text;
+	v_SCHEMA_NAME text;
+	v_PG_EXCEPTION_DETAIL text;
+	v_PG_EXCEPTION_HINT text;
+	v_PG_EXCEPTION_CONTEXT text;
+BEGIN
+	-- Добавление записи в таблицу
+	INSERT INTO public.list_city ("name", zip_code) VALUES (v_name, v_zip_code);
+	RAISE NOTICE 'Запись (%, %) добавлена в таблицу', v_name, v_zip_code;
+EXCEPTION
+	-- Обработчик исключений
+	WHEN OTHERS THEN
+		-- Сохраняем результат диагностики в переменные
+		GET STACKED DIAGNOSTICS v_RETURNED_SQLSTATE := RETURNED_SQLSTATE,
+								v_COLUMN_NAME := COLUMN_NAME,
+								v_CONSTRAINT_NAME := CONSTRAINT_NAME,
+								v_PG_DATATYPE_NAME := PG_DATATYPE_NAME,
+								v_MESSAGE_TEXT := MESSAGE_TEXT,
+								v_TABLE_NAME := TABLE_NAME,
+								v_SCHEMA_NAME := SCHEMA_NAME,
+								v_PG_EXCEPTION_DETAIL := PG_EXCEPTION_DETAIL,
+								v_PG_EXCEPTION_HINT := PG_EXCEPTION_HINT,
+								v_PG_EXCEPTION_CONTEXT := PG_EXCEPTION_CONTEXT;
+		-- Выводим результат диагностики
+		RAISE NOTICE '[RETURNED_SQLSTATE]: %', v_RETURNED_SQLSTATE;
+		RAISE NOTICE '[COLUMN_NAME]: %', v_COLUMN_NAME;
+		RAISE NOTICE '[CONSTRAINT_NAME]: %', v_CONSTRAINT_NAME;
+		RAISE NOTICE '[PG_DATATYPE_NAME]: %', v_PG_DATATYPE_NAME;
+		RAISE NOTICE '[MESSAGE_TEXT]: %', v_MESSAGE_TEXT;
+		RAISE NOTICE '[TABLE_NAME]: %', v_TABLE_NAME;
+		RAISE NOTICE '[SCHEMA_NAME]: %', v_SCHEMA_NAME;
+		RAISE NOTICE '[PG_EXCEPTION_DETAIL]: %', v_PG_EXCEPTION_DETAIL;
+		RAISE NOTICE '[PG_EXCEPTION_HINT]: %', v_PG_EXCEPTION_HINT;
+		RAISE NOTICE '[PG_EXCEPTION_CONTEXT]: %', v_PG_EXCEPTION_CONTEXT;
+END;
+$$ LANGUAGE plpgsql;
+
