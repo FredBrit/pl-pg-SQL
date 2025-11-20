@@ -26,8 +26,26 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+
+### Пример для триггеров уровня оператора (FOR EACH STATEMENT)
 CREATE OR REPLACE TRIGGER trg_before_row_employees
 BEFORE DELETE OR INSERT OR UPDATE
 ON public.employees
 FOR EACH ROW
 EXECUTE FUNCTION func_before_row_employees();
+
+CREATE OR REPLACE FUNCTION public.func_before_statement_employees()
+RETURNS TRIGGER
+AS
+$$
+BEGIN
+	-- Инициируем исключение для прекращения операции
+	RAISE EXCEPTION 'Запрещено использовать % для таблицы %.%', TG_OP, TG_TABLE_SCHEMA, TG_TABLE_NAME;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE TRIGGER trg_before_statement_employees
+BEFORE DELETE OR INSERT OR UPDATE OR TRUNCATE
+ON public.employees
+FOR EACH STATEMENT
+EXECUTE FUNCTION func_before_statement_employees();
