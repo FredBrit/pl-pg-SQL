@@ -1,0 +1,33 @@
+### Пример для триггеров уровня строки (FOR EACH ROW)
+CREATE OR REPLACE FUNCTION public.func_before_row_employees()
+RETURNS TRIGGER
+AS
+$$
+DECLARE
+	v_row RECORD;
+	v_log TEXT;
+BEGIN
+	-- Выполняем действие в зависимости от типа операции
+	CASE TG_OP
+		WHEN 'INSERT' THEN
+			v_row := NEW;
+			v_log := NEW::TEXT;
+		WHEN 'DELETE' THEN
+			v_row := OLD;
+			v_log := OLD::TEXT;
+		WHEN 'UPDATE' THEN
+			v_row := NEW;
+			v_log := OLD::TEXT || '->' || NEW::TEXT;
+	END CASE;
+	-- Выводим информацию в консоль
+	RAISE NOTICE '% % %: %', TG_WHEN, TG_OP, TG_LEVEL, v_log;
+	-- Возвращаем переменную в триггер
+	RETURN v_row;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE TRIGGER trg_before_row_employees
+BEFORE DELETE OR INSERT OR UPDATE
+ON public.employees
+FOR EACH ROW
+EXECUTE FUNCTION func_before_row_employees();
