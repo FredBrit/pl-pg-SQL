@@ -91,3 +91,27 @@ INSTEAD OF UPDATE OR DELETE OR INSERT
 ON public.v_indexing_employees
 FOR EACH ROW
 EXECUTE FUNCTION func_v_indexing_employees();
+
+### Триггеры ограничений
+CREATE OR REPLACE FUNCTION public.func_after_insert_employees()
+RETURNS TRIGGER
+AS
+$$
+BEGIN
+	-- Проверяем табельный номер
+	IF NEW.tab_num = 999999 THEN
+		-- Инициируем исключение и прерываем выполнение
+		RAISE EXCEPTION 'Нельзя использовать табельный номер: %', NEW.tab_num;
+	ELSE
+		-- Возвращаем переменную в триггер
+		RETURN NEW;	
+	END IF;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE CONSTRAINT TRIGGER trg_after_insert_employees
+AFTER INSERT
+ON public.employees
+DEFERRABLE INITIALLY IMMEDIATE
+FOR EACH ROW
+EXECUTE FUNCTION func_after_insert_employees();
