@@ -219,3 +219,22 @@ EXCEPTION
 END;
 $$;
 
+### Пример работы ASSERT
+CREATE OR REPLACE PROCEDURE public.add_employee(p_tab_num INT4, p_full_name TEXT, p_birthday DATE)
+LANGUAGE plpgsql
+AS $$
+BEGIN
+	-- Отладочная проверка входных данных
+	ASSERT p_tab_num > 0, 'Некорректный табельный номер!';
+	-- Проверка на существование сотрудника с таким же табельным номером
+	IF EXISTS (SELECT 1 FROM public.employees WHERE tab_num = p_tab_num) THEN
+		RAISE EXCEPTION 'Сотрудник с табельным номером % уже существует', p_tab_num;
+	END IF;
+	-- Добавление нового сотрудника
+	INSERT INTO public.employees (tab_num, full_name, birthday)
+	VALUES (p_tab_num, p_full_name, p_birthday);
+EXCEPTION
+    WHEN OTHERS THEN
+        RAISE;
+END;
+$$;
