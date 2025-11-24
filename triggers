@@ -115,3 +115,39 @@ ON public.employees
 DEFERRABLE INITIALLY IMMEDIATE
 FOR EACH ROW
 EXECUTE FUNCTION func_after_insert_employees();
+
+### Переходные таблицы
+CREATE OR REPLACE FUNCTION public.func_after_update_employees()
+RETURNS TRIGGER
+AS
+$$
+DECLARE
+	v_row RECORD;
+BEGIN
+	-- Обработка предыдущего состояния
+	IF TG_OP = 'DELETE' OR TG_OP = 'UPDATE' THEN
+		RAISE NOTICE 'Предыдущее состояние:';
+		FOR v_row IN SELECT * FROM my_old_table LOOP
+			RAISE NOTICE '%', v_row;
+		END LOOP;
+	END IF;
+	-- Обработка нового состояния
+	IF TG_OP = 'UPDATE' OR TG_OP = 'INSERT' THEN
+		RAISE NOTICE 'Новое состояние:';
+		FOR v_row IN SELECT * FROM my_new_table LOOP
+			RAISE NOTICE '%', v_row;
+		END LOOP;
+	END IF;
+	-- Возвращаем значение в триггер
+	RETURN NULL;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE TRIGGER trg_after_update_employees
+AFTER UPDATE
+ON public.employees
+REFERENCING
+	OLD TABLE my_old_table
+	NEW TABLE my_new_table
+FOR EACH STATEMENT
+EXECUTE FUNCTION func_after_update_employees();
