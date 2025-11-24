@@ -1,3 +1,13 @@
+### Получение информации о триггерах
+-- Системное представление (CONSTRAINT, INSTEAD OF, DML)
+SELECT * FROM information_schema.triggers;
+
+-- Системный каталог (CONSTRAINT, INSTEAD OF, DML)
+SELECT * FROM pg_catalog.pg_trigger;
+
+-- Для триггеров событий (EVENT TRIGGERS)
+SELECT * FROM pg_catalog.pg_event_trigger;
+
 ### Пример для триггеров уровня строки (FOR EACH ROW)
 CREATE OR REPLACE FUNCTION public.func_before_row_employees()
 RETURNS TRIGGER
