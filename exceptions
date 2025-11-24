@@ -190,3 +190,32 @@ EXCEPTION
 END;
 $$ LANGUAGE plpgsql;
 
+### Удаление строк после проверки прав текущего пользователя
+CREATE OR REPLACE PROCEDURE public.del_employee(p_tab_num INT4)
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    v_username TEXT := current_user;
+BEGIN
+    -- Проверка прав пользователя
+    IF NOT EXISTS (
+        SELECT 1
+        FROM information_schema.table_privileges
+        WHERE table_schema = 'public'
+              AND table_name = 'employees'
+              AND privilege_type = 'DELETE'
+              AND grantee = v_username
+    ) THEN
+        RAISE EXCEPTION 'Отказано в выполнении операции.'
+        USING HINT = 'Проверьте права доступа.',
+              DETAIL = 'Пользователь '||v_username||' не имеет необходимых прав.',
+              ERRCODE = 'insufficient_privilege';
+    END IF;
+    -- Удаление сотрудника
+    DELETE FROM public.employees WHERE tab_num = p_tab_num;
+EXCEPTION
+    WHEN OTHERS THEN
+        RAISE;
+END;
+$$;
+
